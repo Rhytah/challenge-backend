@@ -1,0 +1,18 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Inu | Users{% endblock %}
+{% block content %}
+<ul class="items">
+	{% for user in users %}
+	<li>
+		<a href="/api/v1/users}">
+			<i class="fas fa-users"></i>
+			<div class="item">
+				<h5>{{ user.firstname }}</h5>
+				<span>{{user.lastname}}</span>
+
+			</div>
+		</a>
+	</li>
+	{% endfor %}
+</ul>
+{% endblock %}

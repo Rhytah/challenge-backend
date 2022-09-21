@@ -1,0 +1,13 @@
+GET stats about bookmarks
+---
+tags:
+  - Users
+
+parameters:
+  - in: header
+    name: Authorization
+  
+
+responses:
+  200:
+    description: Users 

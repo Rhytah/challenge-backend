@@ -8,7 +8,6 @@ import os
 class DatabaseConnect:
 
     def __init__(self):
-        
         self.credentials = dict(
                 dbname =os.environ['DATABASE'],
                 user = os.environ['USER'],
@@ -16,13 +15,7 @@ class DatabaseConnect:
                 host=os.environ['HOST'],
                 port =os.environ['PORT']
             )
-        # self.credentials=os.getenv('DATABASE_URL')
-        print(self.credentials)
-        # self.credentials['user']=app_configuration['production'].USER
-        # self.credentials['password']=app_configuration['production'].PASSWORD
-        # self.credentials['host']=app_configuration['production'].HOST
-        # self.credentials['port']=app_configuration['production'].PORT
-        
+
         self.conn =  psycopg2.connect(**self.credentials, cursor_factory=RealDictCursor)
         self.conn.autocommit = True
         self.cursor = self.conn.cursor()

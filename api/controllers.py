@@ -1,5 +1,7 @@
+from multiprocessing.sharedctypes import Value
+from sqlite3 import paramstyle
 from .models import User
-from flask import jsonify, json, request, current_app as app
+from flask import jsonify, json, request, current_app as app, abort
 
 
 from .utilities import UserValidator
@@ -7,6 +9,28 @@ import datetime
 
 validator = UserValidator()
 user_obj = User()
+
+USERS_PER_PAGE = 10
+
+
+def paginate_users(page, selection):
+    '''
+        Method to pagenate questions.
+    '''
+    USERS_PER_PAGE = 10
+
+    start = (page - 1) * USERS_PER_PAGE
+    end = start + USERS_PER_PAGE
+
+    allRecords = []
+
+    for item in selection:
+        item = item.format()
+        allRecords.append(item)
+
+    current_records = allRecords[start:end]
+
+    return current_records
 
 
 class User_controller:
@@ -22,7 +46,7 @@ class User_controller:
             firstname, lastname, username, email, password)
         if invalid_user:
             return invalid_user
-        existent_user = user_obj.signup_search_user(email)
+        existent_user = user_obj.search_user(email)
 
         if existent_user:
             return existent_user
@@ -35,12 +59,21 @@ class User_controller:
         }), 201
 
     def fetch_users(self):
-        result = user_obj.get_users()
-        if result:
+
+        page = request.args.get('page', 1, type=int)
+        start = (page - 1) * 10
+        end = start + 10
+        results = user_obj.get_users()
+        if results:
             return jsonify({
 
-                "data": result,
-                "message": "You are viewing registered users"})
+                "data": results[start:end],
+                "message": "You are viewing registered users",
+                "page": page})
+        return jsonify({
+
+            "error": "No registered users at this time"
+        }), 404
 
     def fetch_user(self, userid):
         user = user_obj.get_user(userid)
@@ -53,3 +86,4 @@ class User_controller:
 
             "error": "user_id out of range, try again with a valid id"
         }), 404
+
