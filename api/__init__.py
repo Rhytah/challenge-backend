@@ -3,39 +3,60 @@ import dateutil.parser
 import babel
 import sys
 from flask import Flask, jsonify
-from .config import app_configuration,template, swagger_config
-from .database.relations_commands import sqlcommands
-from .database.server import DatabaseConnect
+from .config import template, swagger_config
+# from .database.relations_commands import sqlcommands
+# from .database.server import DatabaseConnect
 from flask_cors import CORS
 from flasgger import Swagger, swag_from
-
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from .models import db,setup_db
 
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__)       
+    db.init_app(app)
     with app.app_context():
-        app.config.from_object(app_configuration)
+        # app.config.from_object(app_configuration)
         SWAGGER={
             'title':"INU API"
         }
-        CORS(app)
+        app = Flask(__name__)
+        # app.config.from_object('config')
+        migrate = Migrate(app, db)
 
-        db = DatabaseConnect()
-        for command in sqlcommands:
-            db.cursor.execute(command)
+        setup_db(app)
+
+        CORS(app, resources={r"/*": {"origins": "*"}})
+      
+
+
 
         Swagger(app, config=swagger_config, template=template)
 
-        from .views import user
+        from .views.users import user
+        from .views.dogs import dog
+        from .views.duties import duty
+
+
         app.register_blueprint(user)
+        app.register_blueprint(dog)
+        app.register_blueprint(duty)
 
 
     @app.after_request
     def add_header(response):
+        """ enabling cache-control"""
         response.cache_control.max_age = 300
+
+        """ configuring CORS"""
+        response.headers.add('Access-Control-Allow-Headers',
+                            'Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods',
+                         'GET,PUT,POST,DELETE,OPTIONS')
         return response
-        
+
     @app.route('/')
     def index():
         return jsonify({

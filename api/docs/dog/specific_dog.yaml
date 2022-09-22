@@ -1,7 +1,7 @@
-GET users registered
+GET stats about bookmarks
 ---
 tags:
-  - Users
+  - Specific user
 
 parameters:
   - in: header
@@ -10,4 +10,4 @@ parameters:
 
 responses:
   200:
-    description: Users
+    description: User Details

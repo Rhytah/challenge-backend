@@ -24,6 +24,22 @@ class TestingConfig(Config):
     TESTING = True
 
 
+
+
+
+
+SECRET_KEY = os.urandom(32)
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+DEBUG = True
+
+# Connect to the database
+
+SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URL"]
+# SQLALCHEMY_DATABASE_URI = 'postgres://ritanamono@localhost:5432/challenge_db'
+
+SQLALCHEMY_TRACK_MODIFICATIONS = False 
+
 app_configuration = {
     "development": DevelopmentConfig,
     "testing": TestingConfig,

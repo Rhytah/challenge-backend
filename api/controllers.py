@@ -1,6 +1,6 @@
 from multiprocessing.sharedctypes import Value
 from sqlite3 import paramstyle
-from .models import User
+from .models import User, Dog, Duty, db
 from flask import jsonify, json, request, current_app as app, abort
 
 
@@ -8,7 +8,9 @@ from .utilities import UserValidator
 import datetime
 
 validator = UserValidator()
-user_obj = User()
+user_obj = User
+dog_obj = Dog
+duty_obj = Duty
 
 USERS_PER_PAGE = 10
 
@@ -40,19 +42,19 @@ class User_controller:
         firstname = user_data.get('firstname')
         lastname = user_data.get('lastname')
         email = user_data.get('email')
-        username = user_data.get('username')
-        password = user_data.get('password')
+        city = user_data.get('city')
         invalid_user = validator.validate_add_user(
-            firstname, lastname, username, email, password)
+            firstname, lastname, city, email)
         if invalid_user:
             return invalid_user
         existent_user = user_obj.search_user(email)
 
         if existent_user:
             return existent_user
-        new_user = user_obj.create_user(
-            firstname, lastname, username, password, email)
-
+        new_user = user_obj(
+            firstname, lastname, city, email)
+        db.session.add(new_user)
+        db.session.commit()
         return jsonify({"data": {
             "user": new_user,
             "message": "signup successful"}
@@ -63,7 +65,7 @@ class User_controller:
         page = request.args.get('page', 1, type=int)
         start = (page - 1) * 10
         end = start + 10
-        results = user_obj.get_users()
+        results = user_obj.get_all()
         if results:
             return jsonify({
 
@@ -76,7 +78,7 @@ class User_controller:
         }), 404
 
     def fetch_user(self, userid):
-        user = user_obj.get_user(userid)
+        user = user_obj.get_by_id_full(userid)
         if user:
             return jsonify({
                 "data": user,
@@ -87,3 +89,65 @@ class User_controller:
             "error": "user_id out of range, try again with a valid id"
         }), 404
 
+
+class Dog_controller:
+
+    def fetch_dogs(self):
+
+        page = request.args.get('page', 1, type=int)
+        start = (page - 1) * 10
+        end = start + 10
+        results = dog_obj.get_all()
+        if results:
+            return jsonify({
+
+                "data": results[start:end],
+                "message": "You are viewing registered users",
+                "page": page})
+        return jsonify({
+
+            "error": "No registered dogs at this time"
+        }), 404
+
+    def fetch_dog(self, dogid):
+        dog = dog_obj.get_by_id_full(dogid)
+        if dog:
+            return jsonify({
+                "data": dog,
+                "message": "Dog details displayed"
+            })
+        return jsonify({
+
+            "error": "dog_id out of range, try again with a valid id"
+        }), 404
+
+class Duty_controller:
+
+    def fetch_duties(self):
+
+        page = request.args.get('page', 1, type=int)
+        start = (page - 1) * 10
+        end = start + 10
+        results = duty_obj.get_all()
+        if results:
+            return jsonify({
+
+                "data": results[start:end],
+                "message": "You are viewing registered users",
+                "page": page})
+        return jsonify({
+
+            "error": "No registered duties at this time"
+        }), 404
+
+    def fetch_duty(self, dutyid):
+        duty = duty_obj.get_by_id_full(dutyid)
+        if duty:
+            return jsonify({
+                "data": duty,
+                "message": "Duty details displayed"
+            })
+        return jsonify({
+
+            "error": "duty_id out of range, try again with a valid id"
+        }), 404

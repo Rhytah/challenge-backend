@@ -1,7 +1,7 @@
-GET users registered
+GET registered dogs
 ---
 tags:
-  - Users
+  - Dogs
 
 parameters:
   - in: header
@@ -10,4 +10,4 @@ parameters:
 
 responses:
   200:
-    description: Users
+    description: Dogs 
