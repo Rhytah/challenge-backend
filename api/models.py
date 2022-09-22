@@ -25,13 +25,6 @@ class User(db.Model):
     email = db.Column(db.String(120))
     city = db.Column(db.String(120))
 
-    @classmethod
-    def get_by_id_full(cls, id):
-        details = {}
-        user = cls.get_by_id(id)
-        details.update(user.serialize)
-
-        return details
 
     @classmethod
     def search_user_name(cls, firstname):
@@ -45,6 +38,19 @@ class User(db.Model):
             }
             for user in users
         ]
+    @staticmethod
+    def read_list(**filters):
+        items = User.query.filter_by(**filters).all()
+        return [
+            {
+                "id": item.id,
+                "firstname": item.firstname,
+                "lastname": item.lastname
+            }
+            for item in items
+        ]
+
+
     @classmethod
     def filter_user_city(cls,city):
         city=city
@@ -59,7 +65,6 @@ class User(db.Model):
             for user in users
         ]
     
-
     @classmethod
     def get_all(cls,page):
         page=page
@@ -86,22 +91,26 @@ class User(db.Model):
         return cls.query.filter(db.func.lower(cls.email) == db.func.lower(email)).count()
 
     @property
-    def num_upcoming_shows(self):
+    def num_upcoming_duties(self):
         return self.query.join(Duty).filter_by(user_id=self.id).filter(
             Duty.start_time > datetime.now()).count()
 
     @property
-    def num_past_shows(self):
+    def num_past_duties(self):
         return self.query.join(Duty).filter_by(user_id=self.id).filter(
             Duty.start_time < datetime.now()).count()
 
     @property
-    def past_shows(self):
+    def past_duties(self):
         return Duty.get_past_by_user(self.id)
 
     @property
-    def upcoming_shows(self):
+    def upcoming_duties(self):
         return Duty.get_upcoming_by_user(self.id)
+    
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.get_or_404(id).serialize
 
     def serialize(self):
         return {
@@ -135,6 +144,10 @@ class Dog(db.Model):
         return details
 
     @classmethod
+    def get_by_id(cls, id):
+        return cls.query.get_or_404(id).serialize
+
+    @classmethod
     def search_dog_name(cls, dog_name):
         dogs = cls.query.filter(
             cls.name.ilike(f'%{dog_name}%')
@@ -164,21 +177,21 @@ class Dog(db.Model):
         return results
 
     @property
-    def num_upcoming_shows(self):
+    def num_upcoming_duties(self):
         return self.query.join(Duty).filter_by(dog_id=self.id).filter(
             Duty.start_time > datetime.now()).count()
 
     @property
-    def num_past_shows(self):
+    def num_past_duties(self):
         return self.query.join(Duty).filter_by(dog_id=self.id).filter(
             Duty.start_time < datetime.now()).count()
 
     @property
-    def past_shows(self):
+    def past_duties(self):
         return Duty.get_past_by_dog(self.id)
 
     @property
-    def upcoming_shows(self):
+    def upcoming_duties(self):
         return Duty.get_upcoming_by_og(self.id)
 
     def serialize(self):
@@ -230,6 +243,10 @@ class Duty(db.Model):
         duties = cls.query.filter_by(dog_id=dog_id).filter(
             cls.start_time > datetime.now()).all()
         return [duty.duty_details for duty in duties]
+
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.get_or_404(id).serialize
 
     @classmethod
     def get_upcoming_by_user(cls, user_id):

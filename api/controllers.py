@@ -66,7 +66,12 @@ class User_controller:
 
             "error": "user_id out of range, try again with a valid id"
         }), 404
-
+    
+    def filter_users(self,*args):
+        city = request.args.get('city')
+        firstname = request.args.get('firstname')
+        lastname = request.args.get('lastname')
+        return user_obj.read_list(**request.args)
 class Dog_controller:
 
     def fetch_dogs(self):
@@ -77,7 +82,7 @@ class Dog_controller:
             return jsonify({
 
                 "data": results,
-                "message": "You are viewing registered users",
+                "message": "You are viewing registered dogs",
                 "page": page})
         return jsonify({
 

@@ -1,7 +1,6 @@
 from flask import Blueprint,request, current_app as app,jsonify
 from werkzeug.exceptions import HTTPException
 from ..controllers import Duty_controller,db,duty_obj
-from flasgger import  swag_from
 from datetime import datetime
 duty_controller = Duty_controller()
 duty = Blueprint("duty", __name__)
@@ -23,16 +22,10 @@ def add_duty():
 
 
 @duty.route('/api/v1/duties', methods=['GET'])
-@swag_from('docs/duty/duty.yaml')
 def fetch_duties():
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * 10
     end = start + 10
   
     return duty_controller.fetch_duties()
-
-
-@duty.route('/api/v1/duties/<int:dutyid>', methods=['GET'])
-def get_a_reporter(dutyid):
-    return duty_controller.fetch_duty(dutyid)
 

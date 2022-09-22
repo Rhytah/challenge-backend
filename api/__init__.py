@@ -1,20 +1,14 @@
-import json
+
 import os
-import dateutil.parser
-import babel
 import sys
 from flask import Flask, jsonify
-from .config import template, swagger_config
-# from .database.relations_commands import sqlcommands
-# from .database.server import DatabaseConnect
 from flask_cors import CORS
-from flasgger import Swagger, swag_from
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from .models import db,setup_db,User
+from .models import db, setup_db, User
 from faker import Faker
 import sqlalchemy
 from sqlalchemy.orm import Session, sessionmaker
+
 
 fake = Faker()
 database_path = os.environ['DATABASE_URL']
@@ -22,34 +16,31 @@ database_path = os.environ['DATABASE_URL']
 engine = sqlalchemy.create_engine(database_path)
 Session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 session = Session()
+
+
 def add_records():
     number_of_records = 300000
     records = []
     for i in range(0, number_of_records):
         name = fake.name().split(' ')
         record = {
-        'firstname': name[0],
-        'lastname': name[1],
-        'email': f'{name[0]}.{name[1]}@rita.com',
-        'city': fake.address()
+            'firstname': name[0],
+            'lastname': name[1],
+            'email': f'{name[0]}.{name[1]}@rita.com',
+            'city': fake.address()
         }
         records.append(User(**record))
-        
+
     s = Session()
     s.begin()
     s.bulk_save_objects(records)
     s.commit()
-    print("added records")
-
 
 def create_app():
-    app = Flask(__name__)       
+    app = Flask(__name__)
     db.init_app(app)
     with app.app_context():
-        # app.config.from_object(app_configuration)
-        SWAGGER={
-            'title':"INU API"
-        }
+
         app = Flask(__name__)
         migrate = Migrate(app, db)
 
@@ -57,21 +48,14 @@ def create_app():
         # add_records()
 
         CORS(app, resources={r"/*": {"origins": "*"}})
-      
-
-
-
-        Swagger(app, config=swagger_config, template=template)
 
         from .views.users import user
         from .views.dogs import dog
         from .views.duties import duty
 
-
         app.register_blueprint(user)
         app.register_blueprint(dog)
         app.register_blueprint(duty)
-
 
     @app.after_request
     def add_header(response):
@@ -80,17 +64,16 @@ def create_app():
 
         """ configuring CORS"""
         response.headers.add('Access-Control-Allow-Headers',
-                            'Content-Type,Authorization,true')
+                             'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods',
-                         'GET,PUT,POST,DELETE,OPTIONS')
+                             'GET,PUT,POST,DELETE,OPTIONS')
         return response
 
     @app.route('/')
     def index():
         return jsonify({
-            "message": "Welcome"
+            "message": "Welcome Inu. Please read the README.md file to get started "
         })
-
 
     @app.errorhandler(422)
     def unprocessable(error):
@@ -100,8 +83,6 @@ def create_app():
             "message": "unprocessable"
         }), 422
 
-
-
     @app.errorhandler(400)
     def bad_request(error):
         return jsonify({
@@ -110,7 +91,6 @@ def create_app():
             "message": error.description
         }), 400
 
-
     @app.errorhandler(500)
     def internal_server_error(error):
         return jsonify({
@@ -118,7 +98,6 @@ def create_app():
             "error": 500,
             "message": 'Internal Server Error. Contact admin!'
         }), 500
-
 
     @app.errorhandler(405)
     def method_not_allowed(error):
