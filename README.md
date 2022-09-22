@@ -56,9 +56,14 @@ To start and run the local development server,
   $ flask run
   ```
 
-4. Navigate to Home page [http://localhost:5000](http://localhost:5000)
+4. Run tests
+  ```
+  $ pytest
+  ```
 
-5. Active endpoints
+5. Navigate to Home page [http://localhost:5000](http://localhost:5000)
+
+6. Active endpoints
 
     | Functionality            | Endpoint                             |  
     | ------------------------ | -----------------------------        | 
@@ -71,10 +76,10 @@ To start and run the local development server,
 
 
 
-6. Live project
+7. Live project
 
     - The backend has been deployed to heroku platform [Hosted API](https://inu-backend.herokuapp.com/api/v1/users)
 
-7. API Documentation
+8. API Documentation
     - [![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/4755480/2s7ZE8nMpb)
     Run the above collection to test out with appropriate response data for each endpoint
