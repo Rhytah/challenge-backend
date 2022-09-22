@@ -1,4 +1,5 @@
 import json
+import os
 import dateutil.parser
 import babel
 import sys
@@ -10,8 +11,35 @@ from flask_cors import CORS
 from flasgger import Swagger, swag_from
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from .models import db,setup_db
+from .models import db,setup_db,User
+from faker import Faker
+import sqlalchemy
+from sqlalchemy.orm import Session, sessionmaker
 
+fake = Faker()
+database_path = os.environ['DATABASE_URL']
+
+engine = sqlalchemy.create_engine(database_path)
+Session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+session = Session()
+def add_records():
+    number_of_records = 300000
+    records = []
+    for i in range(0, number_of_records):
+        name = fake.name().split(' ')
+        record = {
+        'firstname': name[0],
+        'lastname': name[1],
+        'email': f'{name[0]}.{name[1]}@rita.com',
+        'city': fake.address()
+        }
+        records.append(User(**record))
+        
+    s = Session()
+    s.begin()
+    s.bulk_save_objects(records)
+    s.commit()
+    print("added records")
 
 
 def create_app():
@@ -23,10 +51,10 @@ def create_app():
             'title':"INU API"
         }
         app = Flask(__name__)
-        # app.config.from_object('config')
         migrate = Migrate(app, db)
 
         setup_db(app)
+        # add_records()
 
         CORS(app, resources={r"/*": {"origins": "*"}})
       

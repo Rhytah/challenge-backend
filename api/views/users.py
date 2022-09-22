@@ -12,6 +12,7 @@ def signup():
     firstname = user_data.get('firstname')
     lastname = user_data.get('lastname')
     email = user_data.get('email')
+    city = user_data.get('city')
     new_user = user_obj(
         firstname=firstname, lastname=lastname, city=city, email=email)
     db.session.add(new_user)
@@ -26,14 +27,11 @@ def signup():
 @swag_from('docs/user/user.yaml')
 def fetch_users():
     page = request.args.get('page', 1, type=int)
-    start = (page - 1) * 10
-    end = start + 10
-  
-    return user_controller.fetch_users()
+
+    return user_controller.fetch_users(page)
 
 
 @user.route('/api/v1/users/<int:userid>', methods=['GET'])
 @swag_from('docs/user/specific_user.yaml')
 def get_a_reporter(userid):
     return user_controller.fetch_user(userid)
-

@@ -45,10 +45,30 @@ class User(db.Model):
             }
             for user in users
         ]
+    @classmethod
+    def filter_user_city(cls,city):
+        city=city
+        users = cls.query.filter_by(cls.firstname.ilike(f'%{city}%')).outerjoin(
+            Duty, cls.id == Duty.user_id).all()
+        return [
+            {
+                "id": user.id,
+                "firstname": user.firstname,
+                "lastname": user.lastname
+            }
+            for user in users
+        ]
+    
 
     @classmethod
-    def get_all(cls):
-        users = cls.query.all()
+    def get_all(cls,page):
+        page=page
+        USERS_PER_PAGE = 20
+
+        users = cls.query.order_by(
+            User.id.desc()
+        ).paginate(page=page, per_page=USERS_PER_PAGE).items
+
         results = [
             {
                 'firstname': user.firstname,

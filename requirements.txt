@@ -66,3 +66,4 @@ virtualenv==20.15.1
 Werkzeug==2.2.2
 Flask-CacheControl==0.3.0
 flasgger==0.9.5
+Faker==14.2.0

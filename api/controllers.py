@@ -2,37 +2,16 @@ from multiprocessing.sharedctypes import Value
 from sqlite3 import paramstyle
 from .models import User, Dog, Duty, db
 from flask import jsonify, json, request, current_app as app, abort
-
-
 from .utilities import UserValidator
 import datetime
+
+
 
 validator = UserValidator()
 user_obj = User
 dog_obj = Dog
 duty_obj = Duty
 
-USERS_PER_PAGE = 10
-
-
-def paginate_users(page, selection):
-    '''
-        Method to pagenate questions.
-    '''
-    USERS_PER_PAGE = 10
-
-    start = (page - 1) * USERS_PER_PAGE
-    end = start + USERS_PER_PAGE
-
-    allRecords = []
-
-    for item in selection:
-        item = item.format()
-        allRecords.append(item)
-
-    current_records = allRecords[start:end]
-
-    return current_records
 
 
 class User_controller:
@@ -60,17 +39,16 @@ class User_controller:
             "message": "signup successful"}
         }), 201
 
-    def fetch_users(self):
+    def fetch_users(self,page):
 
-        page = request.args.get('page', 1, type=int)
-        start = (page - 1) * 10
-        end = start + 10
-        results = user_obj.get_all()
+        page = request.args.get('page', page, type=int)
+        results = user_obj.get_all(page=page)
         if results:
             return jsonify({
 
-                "data": results[start:end],
+                "data": results,
                 "message": "You are viewing registered users",
+                "count":len(results),
                 "page": page})
         return jsonify({
 
@@ -89,19 +67,16 @@ class User_controller:
             "error": "user_id out of range, try again with a valid id"
         }), 404
 
-
 class Dog_controller:
 
     def fetch_dogs(self):
 
         page = request.args.get('page', 1, type=int)
-        start = (page - 1) * 10
-        end = start + 10
         results = dog_obj.get_all()
         if results:
             return jsonify({
 
-                "data": results[start:end],
+                "data": results,
                 "message": "You are viewing registered users",
                 "page": page})
         return jsonify({
@@ -126,13 +101,11 @@ class Duty_controller:
     def fetch_duties(self):
 
         page = request.args.get('page', 1, type=int)
-        start = (page - 1) * 10
-        end = start + 10
         results = duty_obj.get_all()
         if results:
             return jsonify({
 
-                "data": results[start:end],
+                "data": results,
                 "message": "You are viewing registered users",
                 "page": page})
         return jsonify({
