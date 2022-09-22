@@ -1,7 +1,7 @@
-GET stats about bookmarks
+GET dog details
 ---
 tags:
-  - Specific user
+  - Specific dog
 
 parameters:
   - in: header
@@ -10,4 +10,4 @@ parameters:
 
 responses:
   200:
-    description: User Details
+    description: Dog Details

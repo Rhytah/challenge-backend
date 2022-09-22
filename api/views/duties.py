@@ -23,7 +23,7 @@ def add_duty():
 
 
 @duty.route('/api/v1/duties', methods=['GET'])
-@swag_from('api/docs/duty/duty.yaml')
+@swag_from('docs/duty/duty.yaml')
 def fetch_duties():
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * 10
@@ -33,7 +33,6 @@ def fetch_duties():
 
 
 @duty.route('/api/v1/duties/<int:dutyid>', methods=['GET'])
-@swag_from('api/docs/duty/specific_duty.yaml')
 def get_a_reporter(dutyid):
     return duty_controller.fetch_duty(dutyid)
 

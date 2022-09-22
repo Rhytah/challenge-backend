@@ -24,7 +24,7 @@ def add_dog():
 
 
 @dog.route('/api/v1/dogs', methods=['GET'])
-@swag_from('api/docs/dog/dog.yaml')
+@swag_from('docs/dog/dog.yaml')
 def fetch_dogs():
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * 10
@@ -34,7 +34,7 @@ def fetch_dogs():
 
 
 @dog.route('/api/v1/dogs/<int:dogid>', methods=['GET'])
-@swag_from('api/docs/dog/specific_dog.yaml')
+@swag_from('docs/dog/specific_dog.yaml')
 def get_a_reporter(dogid):
     return dog_controller.fetch_dog(dogid)
 
